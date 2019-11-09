@@ -8,17 +8,16 @@ def is_basket_empty(basket):
     return False
 
 
-def is_catalogue_empty(catalogue):
+def check_catalogue_empty(catalogue):
     if not catalogue:
-        return True
-    return False
+        raise ValueError("Catalogue cannot be empty.")
 
 
-def are_basket_items_in_catalogue(basket, catalogue):
+def check_basket_items_in_catalogue(basket, catalogue):
     for item in basket:
         if not catalogue.get(item):
-            return False
-    return True
+            raise ValueError("Basket item '{}' not found in catalogue: '{}'"
+                             .format(item, catalogue))
 
 
 def validate_offers(offers):
@@ -95,7 +94,7 @@ def get_total_price(sub_total, discount):
 
 
 def get_total_discount(basket, offers, catalogue):
-    discount = 0.00
+    discount = 0.0
 
     for item, quantity in basket.items():
         offer_type = offers.get(item)
@@ -106,8 +105,8 @@ def get_total_discount(basket, offers, catalogue):
             if offer_type == "PERCENT_OFFER":
                 discount += quantity * item_price * int(offer_value) / 100
             elif offer_type == "MULTI_OFFER":
-                charge_for_quantity = int(offer_value.split(",")[0])
-                free_quantity = int(offer_value.split(",")[1])
+                charge_for_quantity = float(offer_value.split(",")[0])
+                free_quantity = float(offer_value.split(",")[1])
                 bundles, remainder = divmod(
                     quantity, charge_for_quantity + free_quantity)
                 if remainder > charge_for_quantity:
@@ -120,5 +119,34 @@ def get_total_discount(basket, offers, catalogue):
 
 
 def get_basket_price(basket, catalogue, offers):
-    pass
+    response = {
+        'sub_total': 0.0,
+        'discount': 0.0,
+        'total': 0.0
+    }
+
+    if is_basket_empty(basket):
+        return response
+
+    # validate the catalogue for negative price and emptyness
+    check_catalogue_empty(catalogue)
+    check_catalogue_item_have_negative_price(catalogue)
+
+    # check that the items in the basket are in the catalogue
+    check_basket_items_in_catalogue(basket, catalogue)
+
+    # make sure the offers are the right type and in the right format
+    validate_offers(offers)
+
+    # If al the checks pass, begin the computation
+    sub_total = get_sub_total(basket, catalogue)
+    discount = get_total_discount(basket, offers, catalogue)
+    total = get_total_price(sub_total, discount)
+
+    response['sub_total'] = sub_total
+    response['total'] = total
+    response['discount'] = discount
+
+    return response
+
 

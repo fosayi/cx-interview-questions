@@ -19,12 +19,12 @@ class TestShoppingBasketPrice(unittest.TestCase):
         response = basket_pricer.is_basket_empty(basket)
         self.assertFalse(response)
 
-    def test_is_catalogue_empty_true(self):
+    def test_check_catalogue_empty_true(self):
         catalogue = {}
-        response = basket_pricer.is_catalogue_empty(catalogue)
-        self.assertTrue(response)
+        self.assertRaises(ValueError, basket_pricer.check_catalogue_empty,
+                          catalogue)
 
-    def test_is_catalogue_empty_false(self):
+    def test_check_catalogue_empty_false(self):
         catalogue = {
             'Baked Beans': 0.99,
             'Biscuits': 1.20,
@@ -33,21 +33,21 @@ class TestShoppingBasketPrice(unittest.TestCase):
             'Shampoo(Medium)': 2.50,
             'Shampoo(Large)': 3.50
         }
-        response = basket_pricer.is_catalogue_empty(catalogue)
-        self.assertFalse(response)
+        response = basket_pricer.check_catalogue_empty(catalogue)
+        self.assertIsNone(response)
 
-    def test_are_basket_items_in_catalogue_false(self):
+    def test_check_basket_items_in_catalogue_raises_error(self):
         catalogue = {}
         basket = {
             'Baked Beans': 2,
             'Biscuits': 1,
             'Sardines': 2
         }
-        response = basket_pricer.are_basket_items_in_catalogue(
+        self.assertRaises(
+            ValueError, basket_pricer.check_basket_items_in_catalogue,
             basket, catalogue)
-        self.assertFalse(response)
 
-    def test_are_basket_items_in_catalogue_true(self):
+    def test_check_basket_items_in_catalogue_true(self):
         catalogue = {
             'Baked Beans': 0.99,
             'Biscuits': 1.20,
@@ -61,9 +61,9 @@ class TestShoppingBasketPrice(unittest.TestCase):
             'Biscuits': 1,
             'Sardines': 2
         }
-        response = basket_pricer.are_basket_items_in_catalogue(
+        response = basket_pricer.check_basket_items_in_catalogue(
             basket, catalogue)
-        self.assertTrue(response)
+        self.assertIsNone(response)
 
     def test_get_sub_total_1(self):
         catalogue = {
@@ -280,3 +280,74 @@ class TestShoppingBasketPrice(unittest.TestCase):
     def test_validate_multi_offer_value_invalid_range_raises_error_4(self):
         self.assertRaises(ValueError,
                           basket_pricer.validate_multi_offer_value, "n,1")
+
+    def test_get_basket_price_1(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89
+        }
+        basket = {
+            'Baked Beans': 2,
+            'Biscuits': 1,
+            'Sardines': 2
+        }
+        offers = {
+            'Baked Beans': ('MULTI_OFFER', '2,1'),
+            'Biscuits': ('PERCENT_OFFER', '0'),
+            'Sardines': ('PERCENT_OFFER', '25')
+        }
+        expected = {
+            'sub_total': 6.96,
+            'discount': 0.94,
+            'total': 6.02
+        }
+        response = basket_pricer.get_basket_price(basket, catalogue, offers)
+        self.assertEqual(response, expected)
+
+    def test_get_basket_price_2(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89
+        }
+        basket = {
+            'Baked Beans': 4,
+            'Biscuits': 1
+        }
+        offers = {
+            'Baked Beans': ('MULTI_OFFER', '2,1'),
+            'Biscuits': ('PERCENT_OFFER', '0'),
+            'Sardines': ('PERCENT_OFFER', '25')
+        }
+        expected = {
+            'sub_total': 5.16,
+            'discount': 0.99,
+            'total': 4.17
+        }
+        response = basket_pricer.get_basket_price(basket, catalogue, offers)
+        self.assertEqual(response, expected)
+
+    def test_get_basket_price_3(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89
+        }
+        basket = {
+            'Baked Beans': 4,
+            'Biscuits': 1,
+            'Sardines': 4
+        }
+        offers = {
+            'Baked Beans': ('MULTI_OFFER', '2,1'),
+            'Biscuits': ('PERCENT_OFFER', '50'),
+            'Sardines': ('PERCENT_OFFER', '25')
+        }
+        expected = {
+            'sub_total': 12.72,
+            'discount': 3.48,
+            'total': 9.24
+        }
+        response = basket_pricer.get_basket_price(basket, catalogue, offers)
+        self.assertEqual(response, expected)
