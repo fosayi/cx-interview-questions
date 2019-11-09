@@ -3,17 +3,38 @@ VALID_OFFER_TYPES = ("PERCENT_OFFER", "MULTI_OFFER")
 
 
 def is_basket_empty(basket):
+    """
+    Check if the shopping basket is empty
+
+    :param basket: dict
+    :return: bool
+    """
     if not basket:
         return True
     return False
 
 
 def check_catalogue_empty(catalogue):
+    """
+    Check if there are catalogue of products available
+
+    :param catalogue: dict
+    :return: None
+    :raises: ValueError (if catalogue is empty)
+    """
     if not catalogue:
         raise ValueError("Catalogue cannot be empty.")
 
 
 def check_basket_items_in_catalogue(basket, catalogue):
+    """
+    Check that the items in the basket are in the catalogue
+
+    :param basket: dict
+    :param catalogue: dict
+    :return: None
+    :raises: ValueError (if item not found in catalogue)
+    """
     for item in basket:
         if not catalogue.get(item):
             raise ValueError("Basket item '{}' not found in catalogue: '{}'"
@@ -21,6 +42,13 @@ def check_basket_items_in_catalogue(basket, catalogue):
 
 
 def validate_offers(offers):
+    """
+    Check that the offers are the right type and in the right format
+
+    :param offers: dict
+    :return: None
+    :raises: TypeError (if the offer type or format is invalid)
+    """
     for _, offer_type in offers.items():
         if len(offer_type) != 2:
             raise TypeError(
@@ -37,11 +65,18 @@ def validate_offers(offers):
 
 
 def validate_percent_offer_value(offer_value):
+    """
+    Check that the percent offer are the right type and in the right format
+
+    :param offer_value:
+    :return: None
+    :raises: ValueError (if the percentage value is not valid)
+    """
     # if the percentage value is not a number raise an error
     try:
         int(offer_value)
     except ValueError:
-        raise TypeError(
+        raise ValueError(
             "Invalid Percent Offer value: {}. Value must be a number".format(
                 offer_value))
 
@@ -53,6 +88,13 @@ def validate_percent_offer_value(offer_value):
 
 
 def validate_multi_offer_value(offer_value):
+    """
+    Check that the multi offer are the right type and in the right format
+
+    :param offer_value:
+    :return: None
+    :raises: ValueError (if the multioffer value is not valid)
+    """
     if len(offer_value.split(",")) != 2:
         raise ValueError(
             "Invalid Multi offer value: {}. MultiOffer value must be in the "
@@ -70,6 +112,13 @@ def validate_multi_offer_value(offer_value):
 
 
 def check_catalogue_item_have_negative_price(catalogue):
+    """
+    Check if the catalogue has items with negative price
+
+    :param catalogue: dict
+    :return: None
+    :raises: ValueError (if there is a negative price for an item)
+    """
     for item, price in catalogue.items():
         if price < 0:
             err_msg = "Item '{}' has a negative price '{}'".format(
@@ -78,6 +127,13 @@ def check_catalogue_item_have_negative_price(catalogue):
 
 
 def get_sub_total(basket, catalogue):
+    """
+    Calculate the total price for all items in the basket without any discounts
+
+    :param basket: dict
+    :param catalogue: dict
+    :return: float
+    """
     sub_total = 0.00
     for item, quantity in basket.items():
         sub_total += quantity * catalogue[item]
@@ -85,6 +141,15 @@ def get_sub_total(basket, catalogue):
 
 
 def get_total_price(sub_total, discount):
+    """
+    Calculate the total price for all items in the basket including all
+    discounts available.
+
+    :param sub_total: float
+    :param discount: float
+    :return: float
+    :raises: ValueError (if the total price works out to be negative)
+    """
     total = sub_total - discount
     if total < 0:
         err_msg = "Total price is negative. subtotal={}, Discount={}".format(
@@ -94,6 +159,14 @@ def get_total_price(sub_total, discount):
 
 
 def get_total_discount(basket, offers, catalogue):
+    """
+    Calculate the total discounts based on the offers available for each item
+
+    :param basket: dict
+    :param offers: dict
+    :param catalogue: dict
+    :return: float
+    """
     discount = 0.0
 
     for item, quantity in basket.items():
@@ -119,6 +192,40 @@ def get_total_discount(basket, offers, catalogue):
 
 
 def get_basket_price(basket, catalogue, offers):
+    """
+    A basket-pricer interface which if given a selection of products within a
+    basket, a "catalogue" of products available in a  supermarket and a
+    collection of special-offers, will return price of goods including any
+    applicable discounts.
+
+    :param basket: a dictionary containing the items on a product i.e.
+                   basket = {
+                        'Baked Beans': 2,
+                        'Sardines': 5
+                   }
+    :param catalogue: a dictionary containing all products available i.e
+                   catalogue = {
+                       'Baked Beans': 0.99,
+                       'Biscuits': 1.20,
+                       'Sardines': 1.89,
+                       'Shampoo(Small)': 2.00,
+                       'Shampoo(Medium)': 2.50,
+                       'Shampoo(Large)': 3.50
+                   }
+    :param offers: a dictionary containing special offers for each product.
+                    offers = {
+                        'Baked Beans': ('MULTI_OFFER', '2,1'),
+                        'Biscuits': ('PERCENT_OFFER', '0'),
+                        'Sardines': ('PERCENT_OFFER', '25')
+                    }
+                    Available offer types: "PERCENT_OFFER", "MULTI_OFFER"
+    :return: a dictionary containing response. i.e.
+                    response = {
+                        'sub_total': 6.77,
+                        'discount': 2.21,
+                        'total': 4.56
+                    }
+    """
     response = {
         'sub_total': 0.0,
         'discount': 0.0,
@@ -128,7 +235,7 @@ def get_basket_price(basket, catalogue, offers):
     if is_basket_empty(basket):
         return response
 
-    # validate the catalogue for negative price and emptyness
+    # validate the catalogue for negative price and empty-ness
     check_catalogue_empty(catalogue)
     check_catalogue_item_have_negative_price(catalogue)
 
@@ -138,7 +245,7 @@ def get_basket_price(basket, catalogue, offers):
     # make sure the offers are the right type and in the right format
     validate_offers(offers)
 
-    # If al the checks pass, begin the computation
+    # If all the checks pass, begin the computation
     sub_total = get_sub_total(basket, catalogue)
     discount = get_total_discount(basket, offers, catalogue)
     total = get_total_price(sub_total, discount)
@@ -148,5 +255,3 @@ def get_basket_price(basket, catalogue, offers):
     response['discount'] = discount
 
     return response
-
-

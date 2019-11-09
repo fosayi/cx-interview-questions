@@ -201,7 +201,7 @@ class TestShoppingBasketPrice(unittest.TestCase):
         self.assertRaises(TypeError, basket_pricer.validate_offers, offers)
 
     def test_validate_percent_offer_value_invalid_number_raises_error(self):
-        self.assertRaises(TypeError,
+        self.assertRaises(ValueError,
                           basket_pricer.validate_percent_offer_value, "blah")
 
     def test_validate_percent_offer_value_invalid_range_raises_error(self):
