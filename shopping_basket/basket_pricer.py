@@ -26,7 +26,10 @@ def get_sub_total(basket, catalogue):
 
 
 def get_total_price(sub_total, discount):
-    pass
+    total = sub_total - discount
+    if total < 0:
+        raise ValueError("Total price cannot be negative")
+    return round(total, 2)
 
 
 def get_total_discount(basket, offers, catalogue):

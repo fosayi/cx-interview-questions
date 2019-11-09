@@ -87,3 +87,21 @@ class TestShoppingBasketPrice(unittest.TestCase):
         basket = {}
         response = basket_pricer.get_sub_total(basket, catalogue)
         self.assertEqual(response, 0.00)
+
+    def test_get_total_price(self):
+        sub_total = 5.66
+        discount = 0.66
+        response = basket_pricer.get_total_price(sub_total, discount)
+        self.assertEqual(response, 5.00)
+
+    def test_get_total_price_2(self):
+        sub_total = 5.66
+        discount = 5.66
+        response = basket_pricer.get_total_price(sub_total, discount)
+        self.assertEqual(response, 0.00)
+
+    def test_get_total_price_raises_Exception(self):
+        sub_total = 5.66
+        discount = 5.67
+        self.assertRaises(ValueError, basket_pricer.get_total_price,
+                          sub_total, discount)
