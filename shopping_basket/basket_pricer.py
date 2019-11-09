@@ -19,7 +19,10 @@ def are_basket_items_in_catalogue(basket, catalogue):
 
 
 def get_sub_total(basket, catalogue):
-    pass
+    sub_total = 0.00
+    for item, quantity in basket.items():
+        sub_total += quantity * catalogue[item]
+    return round(sub_total, 2)
 
 
 def get_total_price(sub_total, discount):
