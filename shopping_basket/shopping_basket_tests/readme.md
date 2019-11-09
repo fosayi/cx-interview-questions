@@ -1,3 +1,21 @@
-## Tests
+## Steps to run the Tests ##
 
-Please put your tests in this directory.
+# install pipenv
+pip install pipenv
+
+# Create a new virtualenv using py3
+cd cx-interview-questions/shopping_basket
+pipenv install --three
+
+# Source your virtualenv
+pipenv shell
+
+# install unittest2 for py3
+pipenv install unittest2
+
+# Go into the shopping basket dir
+cd cx-interview-questions/shopping_basket
+
+# run tests
+pytest
+
