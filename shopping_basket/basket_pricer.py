@@ -86,6 +86,16 @@ def get_total_discount(basket, offers, catalogue):
             item_price = catalogue[item]
             if offer_type == "PERCENT_OFFER":
                 discount += quantity * item_price * int(offer_value) / 100
+            elif offer_type == "MULTI_OFFER":
+                charge_for_quantity = int(offer_value.split(",")[0])
+                free_quantity = int(offer_value.split(",")[1])
+                bundles, remainder = divmod(
+                    quantity, charge_for_quantity + free_quantity)
+                if remainder > charge_for_quantity:
+                    bundles += 1
+                    remainder = 0
+                charge_quantity = (bundles * charge_for_quantity) + remainder
+                discount += (quantity - charge_quantity) * item_price
 
     return round(discount, 2)
 

@@ -213,3 +213,54 @@ class TestShoppingBasketPrice(unittest.TestCase):
             'Sardines': ('PERCENT_OFFER', '0'),
         }
         self.assertIsNone(basket_pricer.validate_offers(offers))
+
+    def test_get_multi_offer_discount_1(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89
+        }
+        basket = {
+            'Baked Beans': 4,
+            'Biscuits': 1
+        }
+        offers = {
+            'Baked Beans': ('MULTI_OFFER', '2,1'),
+            'Sardines': ('PERCENT_OFFER', '25')
+        }
+        response = basket_pricer.get_total_discount(basket, offers, catalogue)
+        self.assertEqual(response, 0.99)
+
+    def test_get_multi_offer_discount_2(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89
+        }
+        basket = {
+            'Baked Beans': 5
+        }
+        offers = {
+            'Baked Beans': ('MULTI_OFFER', '4,1'),
+            'Sardines': ('PERCENT_OFFER', '25')
+        }
+        response = basket_pricer.get_total_discount(basket, offers, catalogue)
+        self.assertEqual(response, 0.99)
+
+    def test_get_multi_offer_discount_3(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89
+        }
+        basket = {
+            'Baked Beans': 2,
+            'Biscuits': 1,
+            'Sardines': 2
+        }
+        offers = {
+            'Baked Beans': ('MULTI_OFFER', '2,1'),
+            'Sardines': ('PERCENT_OFFER', '25')
+        }
+        response = basket_pricer.get_total_discount(basket, offers, catalogue)
+        self.assertEqual(response, 0.94)
