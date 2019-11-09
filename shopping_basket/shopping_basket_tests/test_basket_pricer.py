@@ -172,3 +172,44 @@ class TestShoppingBasketPrice(unittest.TestCase):
         }
         response = basket_pricer.get_total_discount(basket, offers, catalogue)
         self.assertEqual(response, 0.00)
+
+    def test_check_catalogue_item_have_negative_price_raises_Exception(self):
+        catalogue = {
+            'Baked Beans': -0.99,
+        }
+        self.assertRaises(
+            ValueError, basket_pricer.check_catalogue_item_have_negative_price,
+            catalogue)
+
+    def test_check_catalogue_item_have_negative_price_passes(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+        }
+        self.assertIsNone(
+            basket_pricer.check_catalogue_item_have_negative_price(catalogue))
+
+    def test_validate_offers_without_value_raises_type(self):
+        offers = {
+            'Biscuits': 'INVALID_OFFER',
+        }
+        self.assertRaises(TypeError, basket_pricer.validate_offers, offers)
+
+    def test_validate_offers_invalid_type_raises_type(self):
+        offers = {
+            'Sardines': ('INVALID_OFFER', '0'),
+        }
+        self.assertRaises(TypeError, basket_pricer.validate_offers, offers)
+
+    def test_validate_percent_offer_value_invalid_number_raises_error(self):
+        self.assertRaises(TypeError,
+                          basket_pricer.validate_percent_offer_value, "blah")
+
+    def test_validate_percent_offer_value_invalid_range_raises_error(self):
+        self.assertRaises(ValueError,
+                          basket_pricer.validate_percent_offer_value, "300")
+
+    def test_validate_offers_success(self):
+        offers = {
+            'Sardines': ('PERCENT_OFFER', '0'),
+        }
+        self.assertIsNone(basket_pricer.validate_offers(offers))

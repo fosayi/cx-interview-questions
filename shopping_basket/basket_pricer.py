@@ -1,4 +1,7 @@
 
+VALID_OFFER_TYPES = ("PERCENT_OFFER", "MULTI_OFFER")
+
+
 def is_basket_empty(basket):
     if not basket:
         return True
@@ -18,6 +21,44 @@ def are_basket_items_in_catalogue(basket, catalogue):
     return True
 
 
+def validate_offers(offers):
+    for item, offer_type in offers.items():
+        if len(offer_type) != 2:
+            raise TypeError(
+                "Invalid offer type: {}. Offer type must be in the format:"
+                "('TYPE', 'VALUE')".format(offer_type))
+        if offer_type[0] not in VALID_OFFER_TYPES:
+            raise TypeError("Offer type must be one of: {}".format(
+                VALID_OFFER_TYPES))
+
+        if offer_type[0] == "PERCENT_OFFER":
+            validate_percent_offer_value(offer_type[1])
+
+
+def validate_percent_offer_value(offer_value):
+    # if the percentage value is not a number raise an error
+    try:
+        int(offer_value)
+    except ValueError:
+        raise TypeError(
+            "Invalid Offer value: {}. Value must be a number".format(
+                offer_value))
+
+    # if the percentage value is not between 1-100% raise an error
+    if not (0 <= int(offer_value) <= 100):
+        raise ValueError(
+            "Invalid percentage value. {}. Percent value must "
+            "be within range (0, 100)".format(offer_value))
+
+
+def check_catalogue_item_have_negative_price(catalogue):
+    for item, price in catalogue.items():
+        if price < 0:
+            err_msg = "Item '{}' has a negative price '{}'".format(
+                item, price)
+            raise ValueError(err_msg)
+
+
 def get_sub_total(basket, catalogue):
     sub_total = 0.00
     for item, quantity in basket.items():
@@ -28,7 +69,9 @@ def get_sub_total(basket, catalogue):
 def get_total_price(sub_total, discount):
     total = sub_total - discount
     if total < 0:
-        raise ValueError("Total price cannot be negative")
+        err_msg = "Total price is negative. subtotal={}, Discount={}".format(
+            sub_total, discount)
+        raise ValueError(err_msg)
     return round(total, 2)
 
 
