@@ -93,7 +93,7 @@ def validate_multi_offer_value(offer_value):
 
     :param offer_value:
     :return: None
-    :raises: ValueError (if the multioffer value is not valid)
+    :raises: ValueError (if the multi offer value is not valid)
     """
     if len(offer_value.split(",")) != 2:
         raise ValueError(
