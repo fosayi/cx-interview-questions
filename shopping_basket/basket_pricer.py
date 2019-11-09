@@ -6,7 +6,9 @@ def is_basket_empty(basket):
 
 
 def is_catalogue_empty(catalogue):
-    pass
+    if not catalogue:
+        return True
+    return False
 
 
 def are_basket_items_in_catalogue(basket, catalogue):
