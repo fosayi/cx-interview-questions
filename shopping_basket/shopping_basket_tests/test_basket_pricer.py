@@ -264,3 +264,19 @@ class TestShoppingBasketPrice(unittest.TestCase):
         }
         response = basket_pricer.get_total_discount(basket, offers, catalogue)
         self.assertEqual(response, 0.94)
+
+    def test_validate_multi_offer_value_invalid_number_raises_error_1(self):
+        self.assertRaises(ValueError,
+                          basket_pricer.validate_multi_offer_value, "blah")
+
+    def test_validate_multi_offer_value_invalid_range_raises_error_2(self):
+        self.assertRaises(ValueError,
+                          basket_pricer.validate_multi_offer_value, "300,")
+
+    def test_validate_multi_offer_value_invalid_range_raises_error_3(self):
+        self.assertRaises(ValueError,
+                          basket_pricer.validate_multi_offer_value, "300,a")
+
+    def test_validate_multi_offer_value_invalid_range_raises_error_4(self):
+        self.assertRaises(ValueError,
+                          basket_pricer.validate_multi_offer_value, "n,1")
