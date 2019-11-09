@@ -33,7 +33,18 @@ def get_total_price(sub_total, discount):
 
 
 def get_total_discount(basket, offers, catalogue):
-    pass
+    discount = 0.00
+
+    for item, quantity in basket.items():
+        offer_type = offers.get(item)
+        if offer_type:
+            offer_type = offers[item][0]
+            offer_value = offers[item][1]
+            item_price = catalogue[item]
+            if offer_type == "PERCENT_OFFER":
+                discount += quantity * item_price * int(offer_value) / 100
+
+    return round(discount, 2)
 
 
 def get_basket_price(basket, catalogue, offers):

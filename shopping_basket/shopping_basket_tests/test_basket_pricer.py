@@ -105,3 +105,70 @@ class TestShoppingBasketPrice(unittest.TestCase):
         discount = 5.67
         self.assertRaises(ValueError, basket_pricer.get_total_price,
                           sub_total, discount)
+
+    def test_get_percent_type_discount_1(self):
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89,
+            'Shampoo(Small)': 2.00,
+            'Shampoo(Medium)': 2.50,
+            'Shampoo(Large)': 3.50
+        }
+        basket = {
+            'Baked Beans': 2,
+            'Biscuits': 1,
+            'Sardines': 2
+        }
+        offers = {
+            'Baked Beans': ('PERCENT_OFFER', '50'),
+            'Biscuits': ('PERCENT_OFFER', '0'),
+            'Sardines': ('PERCENT_OFFER', '25'),
+        }
+        response = basket_pricer.get_total_discount(basket, offers, catalogue)
+        self.assertEqual(response, 1.94)
+
+    def test_get_percent_type_discount_2(self):
+        # It's possible that there are offers on products which
+        # are no longer in the catalogue.
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Shampoo(Small)': 2.00,
+            'Shampoo(Medium)': 2.50,
+            'Shampoo(Large)': 3.50
+        }
+        basket = {
+            'Baked Beans': 2,
+            'Biscuits': 1,
+        }
+        offers = {
+            'Baked Beans': ('PERCENT_OFFER', '50'),
+            'Biscuits': ('PERCENT_OFFER', '0'),
+            'Sardines': ('PERCENT_OFFER', '25'),
+        }
+        response = basket_pricer.get_total_discount(basket, offers, catalogue)
+        self.assertEqual(response, 0.99)
+
+    def test_get_percent_type_discount_3(self):
+        # It's also possible that there are items in the catalogue with
+        # no offers, or multiple offers.
+        catalogue = {
+            'Baked Beans': 0.99,
+            'Biscuits': 1.20,
+            'Sardines': 1.89,
+            'Shampoo(Small)': 2.00,
+            'Shampoo(Medium)': 2.50,
+            'Shampoo(Large)': 3.50
+        }
+        basket = {
+            'Baked Beans': 2,
+            'Biscuits': 1,
+            'Sardines': 2
+        }
+        offers = {
+            'Biscuits': ('PERCENT_OFFER', '0'),
+            'Sardines': ('PERCENT_OFFER', '0'),
+        }
+        response = basket_pricer.get_total_discount(basket, offers, catalogue)
+        self.assertEqual(response, 0.00)
