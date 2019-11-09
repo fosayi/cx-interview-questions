@@ -12,7 +12,10 @@ def is_catalogue_empty(catalogue):
 
 
 def are_basket_items_in_catalogue(basket, catalogue):
-    pass
+    for item in basket:
+        if not catalogue.get(item):
+            return False
+    return True
 
 
 def get_sub_total(basket, catalogue):
