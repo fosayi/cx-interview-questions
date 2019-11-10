@@ -23,9 +23,7 @@ If you want to test the basket_pricer component with different  baskets, offers 
 modifying the basket_pricer_script.py.
 
 
-
 ##### UNITTESTS #########
-
 # install unittest2 for py3 and pytest
 pipenv install unittest2;
 pipenv install pytest
